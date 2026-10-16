@@ -5,47 +5,66 @@ const ctx = canvas.getContext("2d")!;
 const readout = document.querySelector<HTMLParagraphElement>(
   "#allocation-readout",
 )!;
-let n = 2;
+let numColonists = 2;
+type AllocationState = {
+  numColonists: number;
+  production: number;
+  consumption: number;
+  balance: number;
+};
 
-function u() {
-  const p = n * 3;
-  const c = 6;
-  const b = p - c;
+const allocationState: AllocationState = {
+  numColonists: numColonists,
+  production: numColonists * 3,
+  consumption: 6,
+  balance: numColonists * 3 - 6,
+};
+
+function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   for (let i = 0; i < 6; i++) {
-    ctx.fillStyle = i < n ? "#27766b" : "#c9d2c9";
+    ctx.fillStyle = i < numColonists ? "#27766b" : "#c9d2c9";
     ctx.fillRect(18 + i * 45, 16, 36, 36);
-    ctx.fillStyle = i < n ? "#ffffff" : "#233e43";
+    ctx.fillStyle = i < numColonists ? "#ffffff" : "#233e43";
     ctx.font = "16px system-ui";
     ctx.fillText(String(i + 1), 31 + i * 45, 40);
   }
   ctx.fillStyle = "#233e43";
   ctx.font = "14px system-ui";
-  ctx.fillText(`Producers: ${n} / 6`, 18, 76);
-  ctx.fillText(`Production: ${p}`, 18, 102);
+  ctx.fillText(`Colonists: ${numColonists} / 6`, 18, 76);
+  ctx.fillText(`Production: ${allocationState.production}`, 18, 102);
   ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, p * 14, 20);
+  ctx.fillRect(18, 110, allocationState.production * 14, 20);
   ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${c}`, 18, 154);
+  ctx.fillText(`Consumption: ${allocationState.consumption}`, 18, 154);
   ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, c * 14, 20);
+  ctx.fillRect(18, 162, allocationState.consumption * 14, 20);
+  setReadoutText();
+}
+function setReadoutText() {
   readout.textContent =
-    `Assigned: ${n}/6 · Production: ${p} · Consumption: ${c} · Balance: ${
-      b > 0 ? "+" : ""
-    }${b}`;
+    `Assigned: ${allocationState.numColonists}/6 · Production: ${allocationState.production} · Consumption: ${allocationState.consumption} · Surplus Supplies: ${
+      allocationState.balance > 0 ? "+" : ""
+    }${allocationState.balance}`;
+}
+function updateAllocationState() {
+  allocationState.production = numColonists * 3,
+    allocationState.balance = numColonists * 3 - allocationState.consumption;
 }
 
 document.querySelector<HTMLButtonElement>("#allocation-less")!.onclick = () => {
-  n = Math.max(0, n - 1);
-  u();
+  numColonists = Math.max(0, numColonists - 1);
+  updateAllocationState();
+  update();
 };
 document.querySelector<HTMLButtonElement>("#allocation-more")!.onclick = () => {
-  n = Math.min(6, n + 1);
-  u();
+  numColonists = Math.min(6, numColonists + 1);
+  updateAllocationState();
+  update();
 };
 document.querySelector<HTMLButtonElement>("#allocation-reset")!.onclick =
   () => {
-    n = 2;
-    u();
+    numColonists = 2;
+    update();
   };
-u();
+update();
