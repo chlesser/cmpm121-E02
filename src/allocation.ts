@@ -19,6 +19,29 @@ const allocationState: AllocationState = {
   consumption: 6,
   balance: numColonists * 3 - 6,
 };
+type OrderedCollectionUnit = {
+  text: string;
+  stat: () => number;
+  offset: number;
+  color: string;
+};
+
+const statList: OrderedCollectionUnit[] = [];
+const productionStat: OrderedCollectionUnit = {
+  text: "Production",
+  stat: () => allocationState.production,
+  offset: 0,
+  color: "#27766b",
+};
+statList.push(productionStat);
+
+const consumptionStat: OrderedCollectionUnit = {
+  text: "Consumption",
+  stat: () => allocationState.consumption,
+  offset: 52,
+  color: "#a44d23",
+};
+statList.push(consumptionStat);
 
 function update() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -32,14 +55,18 @@ function update() {
   ctx.fillStyle = "#233e43";
   ctx.font = "14px system-ui";
   ctx.fillText(`Colonists: ${numColonists} / 6`, 18, 76);
-  ctx.fillText(`Production: ${allocationState.production}`, 18, 102);
-  ctx.fillStyle = "#27766b";
-  ctx.fillRect(18, 110, allocationState.production * 14, 20);
-  ctx.fillStyle = "#233e43";
-  ctx.fillText(`Consumption: ${allocationState.consumption}`, 18, 154);
-  ctx.fillStyle = "#a44d23";
-  ctx.fillRect(18, 162, allocationState.consumption * 14, 20);
+
+  drawBars();
   setReadoutText();
+}
+function drawBars() {
+  for (const unit of statList) {
+    ctx.fillStyle = "#233e43";
+    ctx.font = "14px system-ui";
+    ctx.fillText(unit.text + `: ${unit.stat()}`, 18, 102 + unit.offset);
+    ctx.fillStyle = unit.color;
+    ctx.fillRect(18, 110 + unit.offset, unit.stat() * 14, 20);
+  }
 }
 function setReadoutText() {
   readout.textContent =
