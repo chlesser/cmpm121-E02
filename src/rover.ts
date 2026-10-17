@@ -22,6 +22,7 @@ interface Direction {
 
 interface Command {
   execute: () => void;
+  name: string;
 }
 const forwardCommand: Command = {
   execute: () => {
@@ -30,11 +31,13 @@ const forwardCommand: Command = {
     x = clamp(x, 0, 4);
     y = clamp(y, 0, 4);
   },
+  name: "Forward",
 };
 const rotateRightCommand: Command = {
   execute: () => {
     direction = (direction + 1) % 4;
   },
+  name: "Right",
 };
 
 const resetCommand: Command = {
@@ -43,6 +46,7 @@ const resetCommand: Command = {
     y = 2;
     direction = 0;
   },
+  name: "Reset",
 };
 
 function drawRover() {
@@ -68,30 +72,48 @@ function drawRover() {
     headings[direction].name
   }`;
 }
-
+function queueCommand(comm: Command) {
+  commandList.push(comm);
+  updateTextoutput();
+}
+function updateTextoutput() {
+  const text = document.getElementById("rover-queue-status");
+  if (!text) return;
+  text.textContent = "";
+  for (const command of commandList) {
+    text.textContent += "\n" + command.name;
+  }
+}
 function commandHandler() {
   for (const command of commandList) {
     command.execute();
   }
   commandList.length = 0;
+  updateTextoutput();
 }
 function clamp(val: number, min: number, max: number): number {
   return Math.min(Math.max(val, min), max);
 }
 
 document.querySelector<HTMLButtonElement>("#rover-forward")!.onclick = () => {
-  commandList.push(forwardCommand);
-  commandHandler();
+  queueCommand(forwardCommand);
   drawRover();
 };
 document.querySelector<HTMLButtonElement>("#rover-right")!.onclick = () => {
-  commandList.push(rotateRightCommand);
-  commandHandler();
+  queueCommand(rotateRightCommand);
   drawRover();
 };
 document.querySelector<HTMLButtonElement>("#rover-reset")!.onclick = () => {
-  commandList.push(resetCommand);
+  resetCommand.execute();
+  drawRover();
+};
+document.querySelector<HTMLButtonElement>("#rover-run")!.onclick = () => {
   commandHandler();
+  drawRover();
+};
+document.querySelector<HTMLButtonElement>("#rover-clear")!.onclick = () => {
+  commandList.length = 0;
+  updateTextoutput();
   drawRover();
 };
 drawRover();
