@@ -75,6 +75,7 @@ function setReadoutText() {
     }${allocationState.balance}`;
 }
 function updateAllocationState() {
+  allocationState.numColonists = numColonists;
   allocationState.production = numColonists * 3,
     allocationState.balance = numColonists * 3 - allocationState.consumption;
 }
