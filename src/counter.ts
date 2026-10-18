@@ -19,7 +19,16 @@ type ShieldState = {
   capacity: number;
   missing: number;
 };
+const modelChange = new EventTarget();
 
+const displayModelChange = () => {
+  drawMeter();
+};
+const inspectorModelChange = () => {
+  if (panel) updateStats();
+};
+modelChange.addEventListener("change", displayModelChange);
+modelChange.addEventListener("change", inspectorModelChange);
 function drawMeter() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const s: ShieldState = getShieldState();
@@ -50,8 +59,7 @@ function setCount(next: number) {
   const bounded = Math.max(0, Math.min(CAP, next));
   if (bounded === charge) return;
   charge = bounded;
-  drawMeter();
-  if (panel) updateStats();
+  modelChange.dispatchEvent(new Event("change"));
 }
 function getShieldState(): ShieldState {
   return { charge, capacity: CAP, missing: CAP - charge };
