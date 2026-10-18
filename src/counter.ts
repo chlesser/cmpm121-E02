@@ -25,10 +25,9 @@ const displayModelChange = () => {
   drawMeter();
 };
 const inspectorModelChange = () => {
-  if (panel) updateStats();
+  updateStats();
 };
 modelChange.addEventListener("change", displayModelChange);
-modelChange.addEventListener("change", inspectorModelChange);
 function drawMeter() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
   const s: ShieldState = getShieldState();
@@ -78,10 +77,12 @@ document.querySelector<HTMLButtonElement>("#counter-open")!.onclick = () => {
   panel = document.createElement("p");
   host.append(panel);
   renderStats();
+  modelChange.addEventListener("change", inspectorModelChange);
 };
 document.querySelector<HTMLButtonElement>("#counter-close")!.onclick = () => {
   if (!panel) return;
   panel.remove();
   panel = null;
+  modelChange.removeEventListener("change", inspectorModelChange);
 };
 drawMeter();
